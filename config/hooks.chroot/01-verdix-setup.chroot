@@ -1,0 +1,39 @@
+#!/bin/bash
+set -e
+
+echo "[verdix] Configurando usuario verdix..."
+
+if ! id verdix >/dev/null 2>&1; then
+    useradd -m -s /bin/bash -u 1000 verdix
+    echo "verdix:verdix" | chpasswd
+fi
+
+usermod -aG sudo verdix 2>/dev/null || true
+usermod -aG audio verdix 2>/dev/null || true
+usermod -aG video verdix 2>/dev/null || true
+usermod -aG plugdev verdix 2>/dev/null || true
+
+echo "verdix ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/verdix
+chmod 0440 /etc/sudoers.d/verdix
+
+echo "[verdix] Configurando servicio verdix..."
+
+systemctl enable verdix.service 2>/dev/null || true
+
+echo "[verdix] Configurando navegador y autologin..."
+
+mkdir -p /etc/lightdm
+cat > /etc/lightdm/lightdm.conf << 'LIGHTDM_EOF'
+[Seat:*]
+autologin-user=verdix
+autologin-user-timeout=0
+greeter-session=lightdm-gtk-greeter
+LIGHTDM_EOF
+
+mkdir -p /etc/xdg/xfce4
+cat > /etc/xdg/xfce4/helpers.rc << 'HELPERS_EOF'
+[WebBrowser]
+Command=firefox-esr
+HELPERS_EOF
+
+echo "[verdix] Configuración completada."

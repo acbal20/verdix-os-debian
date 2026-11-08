@@ -1,0 +1,6 @@
+chroot/
+.lock
+.cache/
+build/
+*.pyc
+__pycache__/

@@ -1,0 +1,51 @@
+(function () {
+  const form = document.getElementById("search-form");
+  const input = document.getElementById("search-input");
+  const tabs = Array.from(document.querySelectorAll(".tab"));
+  const chips = Array.from(document.querySelectorAll(".chip"));
+  let type = "web";
+
+  const endpoints = {
+    web: "https://duckduckgo.com/?q=",
+    images: "https://duckduckgo.com/?iax=images&ia=images&q=",
+    videos: "https://duckduckgo.com/?iax=videos&ia=videos&q=",
+    news: "https://duckduckgo.com/?iar=news&ia=news&q=",
+  };
+  const placeholders = {
+    web: "Buscá en la web...",
+    images: "Buscá imágenes...",
+    videos: "Buscá videos...",
+    news: "Buscá noticias...",
+  };
+
+  function setType(next) {
+    type = next;
+    tabs.forEach((t) => t.classList.toggle("active", t.dataset.type === next));
+    input.placeholder = placeholders[next];
+    input.focus();
+  }
+
+  function search(query) {
+    const q = (query !== undefined ? query : input.value).trim();
+    if (!q) {
+      input.focus();
+      return;
+    }
+    input.value = q;
+    window.open(endpoints[type] + encodeURIComponent(q), "_blank", "noopener");
+  }
+
+  tabs.forEach((tab) => tab.addEventListener("click", () => setType(tab.dataset.type)));
+
+  chips.forEach((chip) =>
+    chip.addEventListener("click", () => {
+      input.value = chip.dataset.q;
+      search(chip.dataset.q);
+    })
+  );
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    search();
+  });
+})();

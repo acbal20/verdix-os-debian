@@ -1,0 +1,13 @@
+[Unit]
+Description=Verdix Web Server
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/verdix
+ExecStart=/usr/bin/python3 /opt/verdix/server.py
+Restart=always
+User=verdix
+
+[Install]
+WantedBy=multi-user.target
