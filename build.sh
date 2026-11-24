@@ -18,9 +18,9 @@ if ! command -v lb &>/dev/null; then
     apt-get install -y live-build debootstrap squashfs-tools xorriso grub-pc-bin grub-efi-amd64-bin mtools
 fi
 
-# Directorio de trabajo
-WORK_DIR="/home/yeremy/verdix-os-debian"
-ISO_OUT="/home/yeremy/verdix-out"
+# Directorio de trabajo (portable: relativo al script, sin rutas de usuario fijas)
+WORK_DIR="$(cd "$(dirname "$0")" && pwd)"
+ISO_OUT="${ISO_OUT:-$WORK_DIR/verdix-out}"
 
 # Limpiar trabajos previos
 rm -rf "$WORK_DIR/build" "$ISO_OUT"
