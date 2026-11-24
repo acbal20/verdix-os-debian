@@ -56,7 +56,23 @@ ExecStart=
 ExecStart=-/sbin/agetty --autologin root --noclear %I 115200
 EOF
 
-# 8) Autostart del escritorio React en modo kiosk
+# 8) Autologin grafico (LightDM) y autostart del escritorio React en kiosk
+#    Drop-in: sobrevive a cualquier reescritura de lightdm.conf por live-config.
+mkdir -p "${rootmnt}/etc/lightdm/lightdm.conf.d"
+cat > "${rootmnt}/etc/lightdm/lightdm.conf.d/50-verdix.conf" <<'EOF'
+[Seat:*]
+autologin-user=verdix
+autologin-user-timeout=0
+user-session=xfce
+EOF
+# LightDM exige pertenencia al grupo 'autologin' en Debian.
+if ! grep -q '^autologin:' "${rootmnt}/etc/group" 2>/dev/null; then
+  gid=1002
+  while cut -d: -f3 "${rootmnt}/etc/group" 2>/dev/null | grep -qx "$gid"; do gid=$((gid + 1)); done
+  echo "autologin:x:${gid}:verdix" >> "${rootmnt}/etc/group"
+elif ! grep '^autologin:' "${rootmnt}/etc/group" | grep -q 'verdix'; then
+  sed -i "s/^\\(autologin:[^:]*:[0-9]*:\\)\\(.*\\)$/\\1verdix,\\2/" "${rootmnt}/etc/group"
+fi
 mkdir -p "${rootmnt}/home/verdix/.config/autostart"
 cat > "${rootmnt}/home/verdix/.config/autostart/verdix-desktop.desktop" <<'EOF'
 [Desktop Entry]

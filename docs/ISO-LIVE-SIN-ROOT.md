@@ -25,11 +25,22 @@ servida por `server.py` en `http://127.0.0.1:8099/desktop/`. Se instala en
 `/opt/verdix/desktop` y se abre automáticamente en Firefox kiosk mediante
 `~/.config/autostart/verdix-desktop.desktop` del usuario `verdix`.
 
+## Verificación gráfica
+
+La sonda QEMU estándar usa `-nographic`: Xorg queda esperando un VT/VGA real y
+no lanza Firefox, aunque LightDM esté activo. Para validar el escritorio se
+verifica HTTP 200 en `/desktop/` y la configuración de autologin; la sesión
+gráfica completa se confirma en hardware con VGA o mediante VNC con un cliente
+conectado.
+
 ## Cambios aplicados al live base
 
 - `console=ttyS0,115200` y arranque automático ISOLINUX/GRUB (pruebas QEMU).
 - Usuario `verdix` (UID 1001) con sudo NOPASSWD, hostname `verdix`.
 - `verdix.service` habilitado en `multi-user.target` y `graphical.target`.
 - Autologin root en ttyS0 para recuperación/depuración.
+- Autologin gráfico de `verdix` en LightDM (drop-in
+  `etc/lightdm/lightdm.conf.d/50-verdix.conf`) y成员 del grupo `autologin`,
+  con pertenencia al grupo `autologin` y autostart de Firefox kiosk hacia `/desktop/`.
 - Evitar editar `/etc/group` con `sed` antes del GID (`sudo:x:verdix,27:` rompe
   `systemd-sysusers`); el formato correcto es `sudo:x:27:verdix`.
